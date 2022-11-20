@@ -1,0 +1,278 @@
+package com.company;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+
+class PersonInfo {
+    protected String name;
+    protected String title;
+    protected String imageFile;
+
+    public PersonInfo(String name, String title, String imageFile) {
+        setInfo(name, title, imageFile);
+    }
+
+    public PersonInfo(PersonInfo pi) {
+        this(pi.name, pi.title, pi.imageFile);
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getImageFile() {
+        return imageFile;
+    }
+
+    public void setInfo(String name, String title, String imageFile) {
+        this.name = name;
+        this.title = title;
+        this.imageFile = imageFile;
+    }
+
+    public String toString() {
+        return String.format("%s%n%s", getName(), getTitle());
+    }
+}
+
+class Student extends PersonInfo {
+    private String group;
+    private String demoWhat;
+    private final String[] titleArray = {"Sir", "Dr Heng", "Prof", "Mr Heng"};
+
+    public Student(String name, String title, String imageFile, String group, String demoWhat) {
+        super(name, title, imageFile);
+        this.group = group;
+        this.demoWhat = demoWhat;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public String getDemoWhat() {
+        return demoWhat;
+    }
+
+    public void setInfo(String name, String title, String imageFile, String group, String demoWhat) {
+        super.setInfo(name, title, imageFile);
+        this.group = group;
+        this.demoWhat = demoWhat;
+    }
+
+    public String toString() {
+        Random rand = new Random();
+        String r_title = titleArray[rand.nextInt(titleArray.length)];
+        return String.format("Hi %s, I am %s%n%s%nI am from %s%nI wish to demo %s", r_title, getName(), getTitle(), getGroup(), getDemoWhat());
+    }
+}
+
+class Lecturer extends PersonInfo {
+    private ArrayList<String> message;
+
+    public Lecturer(String name, String title, String imageFile, ArrayList<String> message) {
+        super(name, title, imageFile);
+        this.message = (ArrayList) message.clone();
+    }
+
+    public Lecturer(Lecturer lect) {
+        super(lect.name, lect.title, lect.imageFile);
+        this.message = (ArrayList) lect.message.clone();
+    }
+
+    public ArrayList<String> getMessage() {
+        return this.message;
+    }
+
+    public void setInfo(String name, String title, String imageFile, ArrayList<String> message) {
+        super.setInfo(name, title, imageFile);
+        this.message = (ArrayList) message.clone();
+    }
+
+    public String toString() {
+        String output = "";
+
+        for (int i = 0; i < this.getMessage().size(); i++) {
+            if (i != 0) {
+                output += "\n";
+            }
+            output += "- " + this.getMessage().get(i);
+        }
+        output += "\n\n\n" + super.toString();
+        return output;
+    }
+}
+
+public class test extends Application {
+    private Student student;
+    private Lecturer lecturer;
+
+    public List<Student> alist = new ArrayList<>();
+    private final String[] nameArray = {"Heng 1", "Heng 2", "Heng 3"};
+    private final String[] message = {"well done", "Statements too long", "Bad indentation", "Bad indentation", "Overall design is OK", "Some improvements needed"};
+
+
+    private String getFTPT() {
+        Random rand = new Random();
+        int a = rand.nextInt(2);
+        if (a == 1) {
+            return "Part time student";
+        } else {
+            return "Full time student";
+        }
+    }
+
+    private String getGroup() {
+        Random rand = new Random();
+        int a = rand.nextInt(8) + 1;
+        return "T0" + a;
+    }
+
+    private String demoWhat() {
+        Random rand = new Random();
+        int a = rand.nextInt(3) + 1;
+        int b = rand.nextInt(3);
+
+        if (b == 0) {
+            return "Assignment " + a;
+        }
+        if (b == 1) {
+            return "Tutorial " + a;
+        } else {
+            return "Lab " + a;
+        }
+    }
+
+    private String getMessage() {
+        Random rand = new Random();
+        int a = rand.nextInt(message.length);
+        return message[a];
+    }
+
+    private ArrayList<String> getMessageList() {
+        Random rand = new Random();
+        ArrayList<String> message_list = new ArrayList<>();
+        int a = rand.nextInt(message.length) + 1;
+        int index = 0;
+
+        while (index < a) {
+            int b = rand.nextInt(5);
+            String m = message[b];
+            if (!message_list.contains(m)) {
+                message_list.add(message[b]);
+                index++;
+            }
+        }
+
+        if (message_list.contains(message[0])) {
+            message_list.removeIf(e -> !Objects.equals(e, "well done"));
+        }
+        return message_list;
+    }
+
+    private void load() {
+        Random rand = new Random();
+        for (int i = 0; i < rand.nextInt(5); i++) {
+            int index = rand.nextInt(nameArray.length);
+            int index_2 = index + 1;
+            alist.add(new Student(nameArray[index], getFTPT(), index_2 + ".jpg", getGroup(), demoWhat()));
+        }
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        load();
+        Button refresh = new Button("Refresh");
+        Button comment = new Button("Lecturer comment");
+        Button clear = new Button("Clear");
+
+        TextArea student_field = new TextArea("Student area");
+        TextArea lecturer_field = new TextArea("Lecturer area");
+        student_field.setPrefRowCount(15);
+        student_field.setPrefColumnCount(14);
+        lecturer_field.setPrefColumnCount(14);
+        lecturer_field.setPrefRowCount(15);
+
+        Image welcome = new Image(String.valueOf(getClass().getResource("welcome.gif")));
+        ImageView iv_w = new ImageView(welcome);
+        iv_w.setFitHeight(100);
+        iv_w.setFitWidth(100);
+        Image logo = new Image(String.valueOf(getClass().getResource("sim.jpg")));
+        ImageView iv_l = new ImageView(logo);
+        iv_l.setFitHeight(100);
+        iv_l.setFitWidth(120);
+        Image clab = new Image(String.valueOf(getClass().getResource("clab.gif")));
+        ImageView iv_c = new ImageView(clab);
+        iv_c.setFitWidth(100);
+        iv_c.setFitHeight(100);
+
+        refresh.setOnAction(event -> {
+            String img = "1.jpg";
+            if (!alist.isEmpty()) {
+                student = alist.get(0);
+                student_field.setText(String.format("Student area%n%n%s",student.toString()));
+                for (int i = 0; i < alist.size(); i++) {
+                    if (student.getName().equals(nameArray[i])) {
+                        int num = i + 1;
+                        img = num + ".jpg";
+                        break;
+                    }
+                }
+                iv_l.setImage(new Image(String.valueOf(getClass().getResource(img))));
+                lecturer = new Lecturer("Heng AK", "Lecturer", "heng.jpg", getMessageList());
+                alist.remove(0);
+            } else {
+                student_field.setText("No more students.");
+                lecturer_field.setText("Finally I can relax.");
+                iv_l.setImage(new Image(String.valueOf(getClass().getResource("sim.jpg"))));
+            }
+        });
+
+
+        comment.setOnAction(event -> {
+            lecturer_field.setText(String.format("Lecturer area%n%n%s%n%n",lecturer.toString()));
+        });
+
+        clear.setOnAction(event -> {
+            student_field.setText("");
+            lecturer_field.setText("");
+        });
+
+        FlowPane flow = new FlowPane();
+        flow.setPadding(new Insets(15, 15, 15, 15));
+        flow.setHgap(20);
+        flow.setVgap(20);
+        flow.setAlignment(Pos.CENTER);
+
+        flow.getChildren().addAll(student_field, lecturer_field, iv_w, iv_l, iv_c, refresh,comment,clear);
+
+        Scene scene = new Scene(flow, 450, 500);
+        primaryStage.setTitle("Your term to demo");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
+    }
+
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
+}
